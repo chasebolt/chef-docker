@@ -1,5 +1,7 @@
 source 'https://supermarket.chef.io'
 
+cookbook 'compat_resource', path: '/Users/cbolt/Repositories/compat_resource'
+
 metadata
 
 group :integration do

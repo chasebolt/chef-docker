@@ -29,41 +29,27 @@ module DockerCookbook
       end
 
       def coerce_ulimits(v)
-        if v.nil?
-          v
-        else
-          Array(v).map do |u|
-            u = "#{u['Name']}=#{u['Soft']}:#{u['Hard']}" if u.is_a?(Hash)
-            u
-          end
-        end
-      end
-
-      def coerce_binds(v)
         return v if v.nil?
-        Array(v).delete_if do |x|
-          parts = x.split(':')
-          if parts.length == 1
-            container_path = parts[0]
-            if property_is_set?(:volumes)
-              volumes.merge!(coerce_volumes(container_path))
-            else
-              volumes container_path
-            end
-            next true
-          end
-          false
+        Array(v).map do |u|
+          u = "#{u['Name']}=#{u['Soft']}:#{u['Hard']}" if u.is_a?(Hash)
+          u
         end
       end
 
       def coerce_volumes(v)
         case v
-        when nil, DockerBase::PartialHash
+        when Hash, nil
           v
-        when Hash
-          DockerBase::PartialHash[v]
         else
-          Array(v).each_with_object(DockerBase::PartialHash.new) { |volume, h| h[volume] = {} }
+          b = []
+          v = Array(v)
+          v.delete_if do |x|
+            parts = x.split(':')
+            b << x if parts.length > 1
+          end
+          volumes_binds b unless b.empty?
+          return nil if v.empty?
+          v.each_with_object({}) { |volume, h| h[volume] = {} }
         end
       end
 
