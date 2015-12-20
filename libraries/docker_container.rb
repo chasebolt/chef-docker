@@ -133,6 +133,9 @@ module DockerCookbook
         # TODO: ^ Explain in more detail (or remove) metprogramming magic.
         # We don't like magic in operations.
         property_name = to_snake_case(key)
+        puts "chase value: #{key}"
+        puts "chase property_name: #{property_name}"
+        next if respond_to?(property_name) && !property_is_set?(property_name)
         public_send(property_name, value) if respond_to?(property_name)
       end
 
@@ -271,6 +274,7 @@ module DockerCookbook
             }
           }
           compact!(config)
+          puts "\n\nchase: #{config}"
           Docker::Container.create(config, connection)
         end
       end
